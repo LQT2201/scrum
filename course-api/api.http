@@ -1,0 +1,78 @@
+@base_url=http://localhost:3000/api
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzE3ODNhMGQ2MWIxNmI5NzBjYWMxNzEiLCJzdHVkZW50SWQiOiIyMTUyMjMyOCIsImVtYWlsIjoidmFubWFuaDA4ODhAZ21haWwuY29tIiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3Mjk2MDg2MjgsImV4cCI6MTcyOTYxMjIyOH0.xlLl2bY5B6DZ8XPVEGAucJ7Z7oHTBoGQjYcd5d0tWys
+
+### Login user
+POST {{base_url}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "identifier": "vanmanh0888@gmail.com",
+    "password": "vanmanh"
+}
+
+### Register user
+POST {{base_url}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "userId": "21521542",
+    "name": "Luong Quoc Toan",
+    "email": "quoctoan@gmail.com",
+    "password": "quoctoan",
+    "role": "Student"
+}
+
+### Test
+GET {{base_url}}/test HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Create Exam (Account must have role teacher)
+POST {{base_url}}/exam HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "code": "123123",
+    "authorIds": [
+        "671783a0d61b16b970cac171"
+    ],
+    "questions": [
+        {
+            "question": "Tui ten gi",
+            "point": 1,
+            "options": [
+                {
+                    "option": "Manh",
+                    "isCorrect": true
+                },
+                {
+                    "option": "Loz",
+                    "isCorrect": false
+                }
+            ]
+        }
+    ]
+}
+
+### Get Exam by its code (both role)
+GET {{base_url}}/exam/123123 HTTP/1.1
+
+### Join exam by code (both role)
+GET {{base_url}}/exam/123123/join HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Save user selections
+PATCH {{base_url}}/exam/123123/save-selected-options HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "questionId": "6717947cfc7a59a5dca22466",
+    "selectedOptions": [
+        "6717947cfc7a59a5dca22467"
+    ]
+}
+
+### Get Exam Record by its code (role both)
+GET {{base_url}}/exam/123123/record HTTP/1.1
+Authorization: Bearer {{token}}
