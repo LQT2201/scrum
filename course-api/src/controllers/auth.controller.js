@@ -87,12 +87,12 @@ const authController = {
       }
 
       // Generate JWT token
-      const token = jwtUtil.generateToken({
-        _id: user._id,
-        userId: user.userId,
-        email: user.email,
-        role: user.role,
-      });
+      // const token = jwtUtil.generateToken({
+      //   _id: user._id,
+      //   userId: user.userId,
+      //   email: user.email,
+      //   role: user.role,
+      // });
 
       // Remove password from response
       const userResponse = {
@@ -105,7 +105,7 @@ const authController = {
       // Respond with token and user data
       return res.status(200).json({
         message: "Login successful.",
-        token, // Include the JWT token
+        // token, // Include the JWT token
         data: userResponse,
       });
     } catch (error) {

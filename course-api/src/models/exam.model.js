@@ -27,7 +27,7 @@ const questionSchema = new Schema({
 
 const examSchema = new Schema(
   {
-    code: {
+    passcode: {
       type: String,
       required: true,
       unique: true,
