@@ -5,7 +5,7 @@ const jwtUtil = require("../utils/jwt.util");
 const authController = {
   register: async (req, res, next) => {
     try {
-      const { userId, name, email, password, role } = req.body;
+      const { userId, name, email, password, avatar, birthday, role } = req.body;
 
       // Check for missing data
       if (!userId || !name || !email || !password) {
@@ -24,6 +24,12 @@ const authController = {
         return res.status(400).json("User with this email already exists.");
       }
 
+      // Check if user already exists (assuming email should be unique)
+      const existingUser2 = await User.findOne({ userId });
+      if (existingUser2) {
+        return res.status(400).json("User with this userId already exists.");
+      }
+
       // Hash the password
       const hashedPassword = await passwordHasher.hashPassword(password);
 
@@ -33,6 +39,8 @@ const authController = {
         name,
         email,
         password: hashedPassword,
+        avatar,
+        birthday,
         role: role.toUpperCase(),
       });
 
@@ -45,7 +53,9 @@ const authController = {
         userId: newUser.userId,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
+        avatar: newUser.avatar,
+        birthday: newUser.birthday,
+        role: newUser.role
       };
 
       // Respond with success
@@ -87,25 +97,26 @@ const authController = {
       }
 
       // Generate JWT token
-      const token = jwtUtil.generateToken({
-        _id: user._id,
-        userId: user.userId,
-        email: user.email,
-        role: user.role,
-      });
+      // const token = jwtUtil.generateToken({
+      //   _id: user._id,
+      //   userId: user.userId,
+      //   email: user.email,
+      //   role: user.role,
+      // });
 
       // Remove password from response
       const userResponse = {
         userId: user.userId,
         name: user.name,
         email: user.email,
-        role: user.role,
+        avatar: user.avatar,
+        birthday: user.birthday
       };
 
       // Respond with token and user data
       return res.status(200).json({
         message: "Login successful.",
-        token, // Include the JWT token
+        // token, // Include the JWT token
         data: userResponse,
       });
     } catch (error) {

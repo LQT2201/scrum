@@ -67,6 +67,36 @@ const examController = {
       next(error);
     }
   },
+
+  authenticateStudentJoinExam: async (req, res, next) => {
+    try {
+      const { passcode } = req.body;
+
+      // Validate input
+      if (!passcode) {
+        return res.status(400).json({ message: "Missing required data." });
+      }
+
+
+      // Check if exam exists with the given passcode
+      const exam = await ExamModel.findOne({ passcode });
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found." });
+      }
+
+      // Check if the exam time is still valid
+      const currentTime = new Date();
+      if (currentTime > exam.endDay) {
+        return res.status(400).json({ message: "Exam time has expired." });
+      }
+
+      // All checks passed, respond with success
+      return res.status(200).json({ exam });
+    } catch (error) {
+      // Pass any errors to the error-handling middleware
+      next(error);
+    }
+  },
 };
 
 module.exports = examController;
