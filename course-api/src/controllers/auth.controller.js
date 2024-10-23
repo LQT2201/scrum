@@ -1,7 +1,6 @@
 const User = require("../models/user.model");
 const passwordHasher = require("../utils/password-hasher.util");
 const jwtUtil = require("../utils/jwt.util");
-global.currentUser  = null;
 
 const authController = {
   register: async (req, res, next) => {
@@ -113,9 +112,6 @@ const authController = {
         avatar: user.avatar,
         birthday: user.birthday
       };
-
-      // Store the user in a global object using userId or email as a key
-    global.currentUser = userResponse;
 
       // Respond with token and user data
       return res.status(200).json({
