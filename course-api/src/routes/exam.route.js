@@ -7,23 +7,23 @@ const router = express.Router();
 
 router.post(
   "/",
-  authMiddleware.verifyToken,
+  // authMiddleware.verifyToken,
   authMiddleware.controlRoleAccess(["TEACHER"]),
   examController.createExam
 );
 router.get(
   "/:code/join",
-  authMiddleware.verifyToken,
+  // authMiddleware.verifyToken,
   examRecordController.joinExam
 );
 router.patch(
   "/:code/save-selected-options",
-  authMiddleware.verifyToken,
+  // authMiddleware.verifyToken,
   examRecordController.saveExamSelections
 );
 router.get(
   "/:code/record",
-  authMiddleware.verifyToken,
+  // authMiddleware.verifyToken,
   examRecordController.getExamRecordByExamCode
 );
 router.get("/:code", examController.getExamByCode);

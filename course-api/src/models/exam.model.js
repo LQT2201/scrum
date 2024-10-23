@@ -2,20 +2,10 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const generateExamCode = () => {
-  const prefix = "EXAM"; // Prefix for the exam code
-  const randomNum = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
-  return `${prefix}${randomNum}`;
-};
-
 const optionSchema = new Schema({
   option: {
     type: String,
     required: true,
-  },
-  isCorrect: {
-    type: Boolean,
-    default: false,
   },
 });
 
@@ -28,6 +18,10 @@ const questionSchema = new Schema({
     type: Number,
     required: true,
   },
+  answer:{
+    type:String,
+    required:true
+  },
   options: [optionSchema],
 });
 
@@ -35,7 +29,7 @@ const examSchema = new Schema(
   {
     code: {
       type: String,
-      required: false,
+      required: true,
       unique: true,
       index: true,
     },
@@ -76,12 +70,6 @@ const examSchema = new Schema(
   }
 );
 
-examSchema.pre("save", (next) => {
-  if(!this.code){
-    this.code = generateExamCode()
-  } 
-  return(next())
-})
 
 examSchema.virtual("totalScore").get(function () {
   return this.questions.reduce((sum, question) => sum + question.point, 0);

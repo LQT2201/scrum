@@ -7,8 +7,6 @@ const examRecordController = {
       const { code: examCode } = req.params;
       const user = req.user;
 
-      console.log("user::", user)
-
       if (!examCode) {
         return res.status(400).json({ message: "Missing required data." });
       }
@@ -59,6 +57,7 @@ const examRecordController = {
       next(error);
     }
   },
+  
   saveExamSelections: async (req, res, next) => {
     try {
       const { questionId, selectedOptions } = req.body;
