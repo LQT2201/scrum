@@ -24,6 +24,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    avatar: {
+      type: String,
+      required: false,
+    },
+    birthday: {
+      type: Date,
+      required: false,
+    },
     role: {
       type: String,
       enum: ["TEACHER", "STUDENT"],

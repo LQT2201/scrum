@@ -70,6 +70,10 @@ const examController = {
 
   authenticateStudentJoinExam: async (req, res, next) => {
     try {
+      const currentUser = global.currentUser;
+      if (!currentUser) {
+        return res.status(403).json({ message: "You must be logged in to enter the exam." });
+      }
       const { passcode } = req.body;
 
       // Validate input
@@ -91,7 +95,7 @@ const examController = {
       }
 
       // All checks passed, respond with success
-      return res.status(200).json({ exam });
+      return res.status(200).json({ exam, currentUser });
     } catch (error) {
       // Pass any errors to the error-handling middleware
       next(error);

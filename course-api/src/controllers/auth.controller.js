@@ -1,11 +1,12 @@
 const User = require("../models/user.model");
 const passwordHasher = require("../utils/password-hasher.util");
 const jwtUtil = require("../utils/jwt.util");
+global.currentUser  = null;
 
 const authController = {
   register: async (req, res, next) => {
     try {
-      const { userId, name, email, password, role } = req.body;
+      const { userId, name, email, password, avatar, birthday, role } = req.body;
 
       // Check for missing data
       if (!userId || !name || !email || !password) {
@@ -24,6 +25,12 @@ const authController = {
         return res.status(400).json("User with this email already exists.");
       }
 
+      // Check if user already exists (assuming email should be unique)
+      const existingUser2 = await User.findOne({ userId });
+      if (existingUser2) {
+        return res.status(400).json("User with this userId already exists.");
+      }
+
       // Hash the password
       const hashedPassword = await passwordHasher.hashPassword(password);
 
@@ -33,6 +40,8 @@ const authController = {
         name,
         email,
         password: hashedPassword,
+        avatar,
+        birthday,
         role: role.toUpperCase(),
       });
 
@@ -45,7 +54,9 @@ const authController = {
         userId: newUser.userId,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
+        avatar: newUser.avatar,
+        birthday: newUser.birthday,
+        role: newUser.role
       };
 
       // Respond with success
@@ -99,8 +110,12 @@ const authController = {
         userId: user.userId,
         name: user.name,
         email: user.email,
-        role: user.role,
+        avatar: user.avatar,
+        birthday: user.birthday
       };
+
+      // Store the user in a global object using userId or email as a key
+    global.currentUser = userResponse;
 
       // Respond with token and user data
       return res.status(200).json({
