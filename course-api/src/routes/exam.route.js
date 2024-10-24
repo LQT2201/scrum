@@ -6,7 +6,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 router.post(
-  "/",
+  "/create",
   authMiddleware.verifyToken,
   authMiddleware.controlRoleAccess(["TEACHER"]),
   examController.createExam
