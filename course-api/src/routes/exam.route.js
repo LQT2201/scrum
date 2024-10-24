@@ -27,5 +27,6 @@ router.get(
   examRecordController.getExamRecordByExamCode
 );
 router.get("/:code", examController.getExamByCode);
+router.post("/enterExam", examController.authenticateStudentJoinExam);
 
 module.exports = router;
