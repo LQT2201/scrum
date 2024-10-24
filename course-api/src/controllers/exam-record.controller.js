@@ -6,50 +6,72 @@ const examRecordController = {
     try {
       const { code: examCode } = req.params;
       const user = req.user;
-
+      console.log(req.user)
       if (!examCode) {
         return res.status(400).json({ message: "Missing required data." });
       }
-
-      const existingExam = await Exam.findOne({ code: examCode });
-
+      
+      // Find the exam by the exam code
+      const existingExam = await Exam.findOne({ passcode: examCode });
+      
       if (!existingExam) {
         return res.status(404).json({ message: "Exam not found." });
       }
+      
+      console.log(user._id)
 
-      const existingExamRecord = await ExamRecord.findOne({
+      // Check if the user has an existing exam record
+      let existingExamRecord = await ExamRecord.findOne({
         examId: existingExam._id,
+        "records.userId": user._id,
       });
-
-      if (!existingExamRecord) {
+  
+      if (existingExamRecord) {
+        // If the user already has an exam record, check their attempts
+        const userRecord = existingExamRecord.records.find(
+          (record) => record.userId.toString() === user._id.toString()
+        );
+  
+        const currentAttempts = userRecord.attempts.length;
+  
+        // Check if the user has exhausted their allowed attempts
+        if (currentAttempts >= existingExam.attempts) {
+          return res
+            .status(403)
+            .json({ message: "You have no remaining attempts for this exam." });
+        }
+  
+        // If the user has remaining attempts, add a new attempt
+        const attemptNumber = currentAttempts + 1;
+  
+        userRecord.attempts.push({
+          attemptNumber,
+          results: [],
+        });
+  
+        await existingExamRecord.save();
+      } else {
+        // If the user doesn't have an exam record, create a new record with the first attempt
         const records = [
           {
             userId: user._id,
-            results: [],
+            attempts: [
+              {
+                attemptNumber: 1,
+                results: [],
+              },
+            ],
           },
         ];
-
+  
         const newExamRecord = new ExamRecord({
           examId: existingExam._id,
           records,
         });
-
+  
         await newExamRecord.save();
-      } else {
-        const userRecordExists = existingExamRecord.records.some(
-          (record) => record.userId.toString() === user._id.toString()
-        );
-
-        if (!userRecordExists) {
-          // If the user does not have a record yet, add a new one
-          existingExamRecord.records.push({
-            userId: user._id,
-            results: [],
-          });
-          await existingExamRecord.save(); // Await the save operation
-        }
       }
-
+  
       return res
         .status(200)
         .json({ message: `User ${user.studentId} joined exam ${examCode}.` });
@@ -60,69 +82,71 @@ const examRecordController = {
   
   saveExamSelections: async (req, res, next) => {
     try {
-      const { questionId, selectedOptions } = req.body;
-      if (!questionId || !selectedOptions || !Array.isArray(selectedOptions)) {
+      const { answers } = req.body; // Expecting an array of answers with questionId and selectedOptions
+      if (!answers || !Array.isArray(answers) || answers.length === 0) {
         return res.status(400).json({ message: "Missing or invalid data." });
       }
-
+  
       const { code: examCode } = req.params;
       const user = req.user;
-
+  
       // Find the exam by its code
       const existingExam = await Exam.findOne({ code: examCode });
       if (!existingExam) {
         return res.status(404).json({ message: "Exam not found." });
       }
-
+  
       // Find the exam record for this exam and user
       const existingExamRecord = await ExamRecord.findOne({
         examId: existingExam._id,
         "records.userId": user._id,
       });
-
+  
       if (!existingExamRecord) {
-        return res
-          .status(404)
-          .json({ message: "User has not joined this exam." });
+        return res.status(404).json({ message: "User has not joined this exam." });
       }
-
+  
       // Get the user's record within the exam
       const userRecord = existingExamRecord.records.find(
         (record) => record.userId.toString() === user._id.toString()
       );
-
+  
       if (!userRecord) {
-        return res
-          .status(404)
-          .json({ message: "User's exam record not found." });
+        return res.status(404).json({ message: "User's exam record not found." });
       }
-
-      // Find the existing result for the question, if any
-      const existingResult = userRecord.results.find(
-        (result) => result.questionId.toString() === questionId.toString()
-      );
-
-      if (existingResult) {
-        // Update the selected options if the question was already answered
-        existingResult.selectedOptions = selectedOptions;
-      } else {
-        // Add new result for the question
-        userRecord.results.push({
-          questionId,
-          selectedOptions,
-        });
-      }
-
+  
+      // Process each answer (questionId and selectedOptions)
+      answers.forEach(({ questionId, selectedOptions }) => {
+        if (!questionId || !selectedOptions || !Array.isArray(selectedOptions)) {
+          return res.status(400).json({ message: "Invalid data for one of the answers." });
+        }
+  
+        // Find the existing result for the question, if any
+        const existingResult = userRecord.results.find(
+          (result) => result.questionId.toString() === questionId.toString()
+        );
+  
+        if (existingResult) {
+          // Update the selected options if the question was already answered
+          existingResult.selectedOptions = selectedOptions;
+        } else {
+          // Add new result for the question
+          userRecord.results.push({
+            questionId,
+            selectedOptions,
+          });
+        }
+      });
+  
       // Save the updated exam record
       await existingExamRecord.save();
-
-      return res
-        .status(200)
-        .json({ message: "Selections saved successfully." });
+  
+      return res.status(200).json({ message: "Selections saved successfully." });
     } catch (error) {
       next(error);
     }
   },
+  
   getExamRecordByExamCode: async (req, res, next) => {
     try {
       const { code: examCode } = req.params;

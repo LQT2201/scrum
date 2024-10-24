@@ -7,13 +7,13 @@ const router = express.Router();
 
 router.post(
   "/",
-  // authMiddleware.verifyToken,
+  authMiddleware.verifyToken,
   authMiddleware.controlRoleAccess(["TEACHER"]),
   examController.createExam
 );
 router.get(
   "/:code/join",
-  // authMiddleware.verifyToken,
+  authMiddleware.verifyToken,
   examRecordController.joinExam
 );
 router.patch(

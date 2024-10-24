@@ -16,16 +16,24 @@ const examRecordSchema = new Schema({
         required: true,
         ref: "User",
       },
-      results: [
+      attempts: [
         {
-          questionId: {
-            type: Schema.Types.ObjectId,
-            ref: "Exam.questions",
+          attemptNumber: {
+            type: Number,
+            required: true,
           },
-          selectedOptionIds: [
+          results: [
             {
-              type: Schema.Types.ObjectId,
-              ref: "Exam.questions.options",
+              questionId: {
+                type: Schema.Types.ObjectId,
+                ref: "Exam.questions",
+              },
+              selectedOptionIds: [
+                {
+                  type: Schema.Types.ObjectId,
+                  ref: "Exam.questions.options",
+                },
+              ],
             },
           ],
         },
