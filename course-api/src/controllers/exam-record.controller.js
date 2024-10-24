@@ -6,7 +6,7 @@ const examRecordController = {
     try {
       const { code: examCode } = req.params;
       const user = req.user;
-      console.log(req.user)
+      console.log(user, 'ádfdsjfah')
       if (!examCode) {
         return res.status(400).json({ message: "Missing required data." });
       }
@@ -18,8 +18,6 @@ const examRecordController = {
         return res.status(404).json({ message: "Exam not found." });
       }
       
-      console.log(user._id)
-
       // Check if the user has an existing exam record
       let existingExamRecord = await ExamRecord.findOne({
         examId: existingExam._id,
@@ -63,7 +61,7 @@ const examRecordController = {
             ],
           },
         ];
-  
+        console.log(records)
         const newExamRecord = new ExamRecord({
           examId: existingExam._id,
           records,
@@ -74,7 +72,7 @@ const examRecordController = {
   
       return res
         .status(200)
-        .json({ message: `User ${user.studentId} joined exam ${examCode}.` });
+        .json({ message: `User ${user._id} joined exam ${examCode}.` });
     } catch (error) {
       next(error);
     }
@@ -150,8 +148,8 @@ const examRecordController = {
   getExamRecordByExamCode: async (req, res, next) => {
     try {
       const { code: examCode } = req.params;
-      const { role, _id: userId } = req.user; // Extract the user's ID from the request
-
+      const user = req.user; // Extract the user's ID from the request
+      console.log(user,'sdfadsf')
       // Find the exam by its code
       const existingExam = await Exam.findOne({ code: examCode });
       if (!existingExam) {

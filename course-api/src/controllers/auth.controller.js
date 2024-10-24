@@ -97,17 +97,18 @@ const authController = {
       }
 
       // Generate JWT token
-      // const token = jwtUtil.generateToken({
-      //   _id: user._id,
-      //   userId: user.userId,
-      //   email: user.email,
-      //   role: user.role,
-      // });
+      const token = jwtUtil.generateToken({
+        _id: user._id,
+        userId: user.userId,
+        email: user.email,
+        role: user.role,
+      });
 
       // Remove password from response
       const userResponse = {
         userId: user.userId,
         name: user.name,
+        token,
         email: user.email,
         avatar: user.avatar,
         birthday: user.birthday
