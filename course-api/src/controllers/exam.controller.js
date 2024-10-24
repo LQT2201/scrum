@@ -62,7 +62,7 @@ const examController = {
   getExamByCode: async (req, res, next) => {
     try {
       const { code } = req.params;
-
+      console.log('ádfdsádfsdf')
       // Find exam by passcode
       const exam = await ExamModel.findOne({ passcode: code }).populate(
         "authorIds",
